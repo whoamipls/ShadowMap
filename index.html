@@ -32,11 +32,12 @@
          var canvas = document.getElementById("renderCanvas");
          var engine = new BABYLON.Engine(canvas, true);
 
+         var shaderMaterial;
          var createScene = function () {
             var scene = new BABYLON.Scene(engine);
             var camera = new BABYLON.ArcRotateCamera("Camera", Math.PI / 4, Math.PI / 4, 2, BABYLON.Vector3.Zero(), scene);
             camera.attachControl(canvas, true);
-            var shaderMaterial = new BABYLON.ShaderMaterial("shader", scene, "./basic",
+            shaderMaterial = new BABYLON.ShaderMaterial("shader", scene, "./basic",
                {
                   attributes: ["position", "normal", "uv"],
                   uniforms: ["world", "worldView", "worldViewProjection", "view", "projection"]
@@ -44,13 +45,18 @@
             var mainTexture = new BABYLON.Texture("amiga.jpg", scene);
             shaderMaterial.setTexture("textureSampler", mainTexture);
             shaderMaterial.backFaceCulling = false;
-            var box = BABYLON.MeshBuilder.CreateBox("box", {}, scene);
+            var boxSize = 0.5;
+            var box = BABYLON.MeshBuilder.CreateBox("box", { height: boxSize, width: boxSize, depth: boxSize }, scene);
             box.material = shaderMaterial;
             return scene;
          }
 
+         var offset = 0;
          var scene = createScene();
          engine.runRenderLoop(function () {
+            offset += 0.01;
+            if (offset > 1) offset = 0;
+            shaderMaterial.setFloat('offset', offset);
             scene.render();
          });
 
